@@ -63,12 +63,9 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         # print("classfy_out")
         # print(classfy_out)
         
-        print("cluster_out")
-        print(cluster_out)
-        
-        # print("cont_features")
-        # print(cont_features)
-        
+        # print("cluster_out")
+        # print(cluster_out)
+   
         # print("cont_labels")
         # print(cont_labels)
         total_num += plabels.size(0)
@@ -87,6 +84,8 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         # loss function
         batch_size = classfy_out.shape[0]
         cont_labels = cont_labels.contiguous().view(-1, 1)
+        print("cont_labels")
+        print(cont_labels)
         cont_mask = torch.eq(cont_labels[:batch_size], cont_labels.T).float().cuda() # mask for SupCon
         if epoch >= args.proto_start: # update confidence
             if args.augmentation_type =='case1':
