@@ -59,18 +59,18 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         
         # train and save results
         classfy_out, cluster_out, cont_features, cont_labels = model(images_w1, images_s1, plabels, args)
-        
-        print("classfy_out")
-        print(classfy_out)
+        # classfy_out: logits
+        # print("classfy_out")
+        # print(classfy_out)
         
         print("cluster_out")
         print(cluster_out)
         
-        print("cont_features")
-        print(cont_features)
+        # print("cont_features")
+        # print(cont_features)
         
-        print("cont_labels")
-        print(cont_labels)
+        # print("cont_labels")
+        # print(cont_labels)
         total_num += plabels.size(0)
         cls_bingo_num  += torch.eq(torch.max(classfy_out, 1)[1], dlabels).sum().cpu()
         cons_bingo_num += torch.eq(torch.max(cluster_out, 1)[1], dlabels).sum().cpu()
