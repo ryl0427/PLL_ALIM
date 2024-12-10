@@ -23,9 +23,12 @@ def load_cifar10(args):
 
     ## train_loader: train_givenY
     dlabels_train = np.array(dlabels_train).astype('int')
+    print(dlabels_train)
     num_sample = len(dlabels_train)
     
     # Step 1: Create train_givenY (partial labels)
+    
+    # to do
     train_givenY = generate_uniform_cv_candidate_labels(dlabels_train, args.partial_rate) ## generate partial dlabels
     
     # For labels 8 and 9, assign partial labels from the range [0-7]
