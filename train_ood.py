@@ -282,8 +282,9 @@ if __name__ == '__main__':
     os.environ['PYTHONHASHSEED'] = str(args.seed)
     print (f'====== Step1: Reading Data =======')
     if args.dataset == 'cifar10':     #load data
-        args.num_class = 10
+        args.num_class = 8
         train_loader,train_givenY, test_loader = load_cifar10(args)
+    
     elif args.dataset == 'cifar100':
         args.num_class = 100
         train_loader,train_givenY, test_loader = load_cifar100(args)
