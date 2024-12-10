@@ -44,8 +44,12 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         images_w1 = images_w1.cuda() # images_w1: [3, 32, 32]
         images_w2 = images_w2.cuda()
         images_s1 = images_s1.cuda()
+        
         plabels = plabels.cuda()
+        print(plabels)
         dlabels = dlabels.long().detach().cuda() # only for evalaution
+        print(glabels)
+        
         index = index.cuda()
         index_2 = index_2.cuda()
         
