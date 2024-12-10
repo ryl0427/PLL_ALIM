@@ -48,7 +48,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         plabels = plabels.cuda()
         # plabels: partial label
         # print("plabels")
-        # print(plabels)
+        print(plabels)
         dlabels = dlabels.long().detach().cuda() # only for evalaution
         # dlabels: true label
         # print("dlabels")
@@ -59,15 +59,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         
         # train and save results
         classfy_out, cluster_out, cont_features, cont_labels = model(images_w1, images_s1, plabels, args)
-        # classfy_out: logits
-        # print("classfy_out")
-        # print(classfy_out)
-        
-        # print("cluster_out")
-        # print(cluster_out)
-   
-        # print("cont_labels")
-        # print(cont_labels)
+       
         total_num += plabels.size(0)
         cls_bingo_num  += torch.eq(torch.max(classfy_out, 1)[1], dlabels).sum().cpu()
         cons_bingo_num += torch.eq(torch.max(cluster_out, 1)[1], dlabels).sum().cpu()
@@ -84,8 +76,8 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         # loss function
         batch_size = classfy_out.shape[0]
         cont_labels = cont_labels.contiguous().view(-1, 1)
-        print("cont_labels")
-        print(cont_labels)
+        # print("cont_labels")
+        # print(cont_labels)
         cont_mask = torch.eq(cont_labels[:batch_size], cont_labels.T).float().cuda() # mask for SupCon
         if epoch >= args.proto_start: # update confidence
             if args.augmentation_type =='case1':
@@ -93,8 +85,10 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
                 if args.proto_type=='classify': pred = classfy_out
             loss_fn.confidence_update(args, pred, index, plabels)
         
+        # 对比学习 loss
         loss_cont = loss_cont_fn(features=cont_features, mask=cont_mask, batch_size=batch_size)
         loss_cls = loss_fn(args, classfy_out, index) # need preds
+        
         if args.loss_weight_mixup !=0:
             lam = np.random.beta(args.alpha, args.alpha)
             lam = max(lam, 1-lam)
