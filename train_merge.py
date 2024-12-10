@@ -46,17 +46,21 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         images_s1 = images_s1.cuda()
         
         plabels = plabels.cuda()
-        print("plabels")
-        print(plabels)
+        # plabels: partial label
+        # print("plabels")
+        # print(plabels)
         dlabels = dlabels.long().detach().cuda() # only for evalaution
-        print("dlabels")
-        print(dlabels)
+        # dlabels: true label
+        # print("dlabels")
+        # print(dlabels)
         
         index = index.cuda()
         index_2 = index_2.cuda()
         
         # train and save results
         classfy_out, cluster_out, cont_features, cont_labels = model(images_w1, images_s1, plabels, args)
+        print("cont_labels")
+        print(cont_labels)
         total_num += plabels.size(0)
         cls_bingo_num  += torch.eq(torch.max(classfy_out, 1)[1], dlabels).sum().cpu()
         cons_bingo_num += torch.eq(torch.max(cluster_out, 1)[1], dlabels).sum().cpu()
