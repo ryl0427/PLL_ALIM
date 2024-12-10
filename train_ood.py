@@ -16,7 +16,8 @@ from models.cifar_resnet import CIFAR_ResNet
 from models.cifar_preactresnet import CIFAR_PreActResNet
 from utils.utils_algo import *
 from utils.utils_loss import partial_loss, SupConLoss
-from datasets.cifar10 import load_cifar10
+from datasets.cifar10_ood import load_cifar10
+
 from datasets.cifar100 import load_cifar100
 from datasets.cifar100H import load_cifar100H
 from datasets.cub200 import load_cub200
