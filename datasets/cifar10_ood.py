@@ -75,11 +75,14 @@ def generate_noise_labels_ood(labels, partialY, noise_rate=0.0):
             ## add noise in partial label
             newii = random.randint(0, len(houxuan_idx)-1)
             idx = houxuan_idx[newii]
-            assert plabel[label] == 1, f'plabel[label] != 1'
-            assert plabel[idx]   == 0, f'plabel[idx]   != 0'
-            plabel[label] = 0
-            plabel[idx] = 1
-            partialY_new.append(plabel)
+            if label < 8:
+                assert plabel[label] == 1, f'plabel[label] != 1'
+                assert plabel[idx]   == 0, f'plabel[idx]   != 0'
+                plabel[label] = 0
+                plabel[idx] = 1
+                partialY_new.append(plabel)
+            else:
+                partialY_new.append(plabel)
         else:
             partialY_new.append(plabel)
     partialY_new = np.array(partialY_new)
