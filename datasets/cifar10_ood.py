@@ -13,6 +13,47 @@ import torchvision.transforms as transforms
 
 from utils.randaugment import RandomAugment
 from utils.utils_algo import generate_uniform_cv_candidate_labels, generate_noise_labels,generate_uniform_cv_candidate_labels_PiCO
+
+def generate_uniform_cv_candidate_labels_ood(labels, partial_rate=0.1):
+
+    # K = int(np.max(labels) - np.min(labels) + 1) # 10
+    K = 8
+    n = len(labels) # 50000
+
+    partialY = np.zeros((n, K))
+    
+    # partialY[np.arange(n), labels] = 1.0
+    for i, label in enumerate(labels):
+        if label <= 7:
+            partialY[i, label] = 1.0
+
+    transition_matrix = np.eye(K)
+    transition_matrix[np.where(~np.eye(transition_matrix.shape[0],dtype=bool))]=partial_rate
+    print(transition_matrix)
+    '''
+    transition_matrix = 
+        [[1.  0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5]
+         [0.5 1.  0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5]
+         [0.5 0.5 1.  0.5 0.5 0.5 0.5 0.5 0.5 0.5]
+         [0.5 0.5 0.5 1.  0.5 0.5 0.5 0.5 0.5 0.5]
+         [0.5 0.5 0.5 0.5 1.  0.5 0.5 0.5 0.5 0.5]
+         [0.5 0.5 0.5 0.5 0.5 1.  0.5 0.5 0.5 0.5]
+         [0.5 0.5 0.5 0.5 0.5 0.5 1.  0.5 0.5 0.5]
+         [0.5 0.5 0.5 0.5 0.5 0.5 0.5 1.  0.5 0.5]
+         [0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 1.  0.5]
+         [0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 1. ]]
+    '''
+    random_n = np.random.uniform(0, 1, size=(n, K))
+
+    for j in range(n):  # for each instance
+        for jj in range(K): # for each class 
+            if jj == labels[j]: # except true class
+                continue
+            if random_n[j, jj] < transition_matrix[labels[j], jj]:
+                partialY[j, jj] = 1.0
+
+    return partialY
+
 def load_cifar10(args):
     #######################################################
     print ('obtain train_loader')
@@ -29,14 +70,16 @@ def load_cifar10(args):
     # Step 1: Create train_givenY (partial labels)
     
     # to do
-    train_givenY = generate_uniform_cv_candidate_labels(dlabels_train, args.partial_rate) ## generate partial dlabels
+    train_givenY = generate_uniform_cv_candidate_labels_ood(dlabels_train, args.partial_rate) ## generate partial dlabels
     
+    '''
     # For labels 8 and 9, assign partial labels from the range [0-7]
     for i in range(num_sample):
         if dlabels_train[i] == 8 or dlabels_train[i] == 9:
             # Randomly choose a label from 0-7 for partial labels
             train_givenY[i] = np.random.choice(8, size=1)  # This assigns partial labels from {0, 1, ..., 7}
-
+    '''
+    
     print('Average candidate num: ', np.mean(np.sum(train_givenY, axis=1)))
     bingo_rate = np.sum(train_givenY[np.arange(num_sample), dlabels_train] == 1.0) / num_sample
     print('Average bingo rate: ', bingo_rate)
