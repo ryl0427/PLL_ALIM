@@ -33,10 +33,14 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
     total_classfy_out = []
     total_cluster_out = []
     
-    piror_set = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+    # piror_set = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+    piror_set = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]
     
     # cluster_piror_set_bingo_num = [0,0,0,0,0,0,0,0,0,0,0]
     # classfy_piror_set_bingo_num = [0,0,0,0,0,0,0,0,0,0,0]
+    
+    cluster_piror_set_bingo_num = [0,0,0,0,0,0,0,0,0]
+    classfy_piror_set_bingo_num = [0,0,0,0,0,0,0,0,0]
     
     
     model.train()
