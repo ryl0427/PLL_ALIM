@@ -32,9 +32,12 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
     total_dlabels = []
     total_classfy_out = []
     total_cluster_out = []
+    
     piror_set = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
-    cluster_piror_set_bingo_num = [0,0,0,0,0,0,0,0,0,0,0]
-    classfy_piror_set_bingo_num = [0,0,0,0,0,0,0,0,0,0,0]
+    
+    # cluster_piror_set_bingo_num = [0,0,0,0,0,0,0,0,0,0,0]
+    # classfy_piror_set_bingo_num = [0,0,0,0,0,0,0,0,0,0,0]
+    
     
     model.train()
     margin = []
@@ -62,17 +65,21 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         classfy_out, cluster_out, cont_features, cont_labels = model(images_w1, images_s1, plabels, args)
        
         total_num += plabels.size(0)
+        
         cls_bingo_num  += torch.eq(torch.max(classfy_out, 1)[1], dlabels).sum().cpu()
         cons_bingo_num += torch.eq(torch.max(cluster_out, 1)[1], dlabels).sum().cpu()
         cont_labels_bingo_num += torch.eq(torch.max(cluster_out * (plabels +args.piror*(1-plabels)),1)[1], dlabels).sum().cpu()
+        
         for jj in range(len(piror_set)):
             cluster_piror_set_bingo_num[jj] = cluster_piror_set_bingo_num[jj] + torch.eq(torch.max(cluster_out * (plabels +piror_set[jj]*(1-plabels)),1)[1], dlabels).sum().cpu()
             classfy_piror_set_bingo_num[jj] = classfy_piror_set_bingo_num[jj] + torch.eq(torch.max(classfy_out * (plabels +piror_set[jj]*(1-plabels)),1)[1], dlabels).sum().cpu()
+        
         total_indexes.append(index.detach().cpu().numpy())
         total_plabels.append(plabels.detach().cpu().numpy())
         total_dlabels.append(dlabels.detach().cpu().numpy())
         total_classfy_out.append(classfy_out.detach().cpu().numpy())
         total_cluster_out.append(cluster_out.detach().cpu().numpy())
+        print("YES")
 
         # loss function
         batch_size = classfy_out.shape[0]
