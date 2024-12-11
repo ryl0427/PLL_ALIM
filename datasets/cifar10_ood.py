@@ -58,6 +58,33 @@ def generate_uniform_cv_candidate_labels_ood(labels, partial_rate=0.1):
 
     return partialY
 
+def generate_noise_labels_ood(labels, partialY, noise_rate=0.0):
+    partialY_new = [] # must define partialY_new
+    for ii in range(len(labels)):
+        label = labels[ii]
+        plabel =  partialY[ii]
+        noise_flag = (random.uniform(0, 1) <= noise_rate) # whether add noise to label
+        if noise_flag:
+            ## random choose one idx not in plabel
+            houxuan_idx = []
+            for ii in range(len(plabel)):
+                if plabel[ii] == 0: houxuan_idx.append(ii)
+            if len(houxuan_idx) == 0: # all category in partial label
+                partialY_new.append(plabel)
+                continue
+            ## add noise in partial label
+            newii = random.randint(0, len(houxuan_idx)-1)
+            idx = houxuan_idx[newii]
+            assert plabel[label] == 1, f'plabel[label] != 1'
+            assert plabel[idx]   == 0, f'plabel[idx]   != 0'
+            plabel[label] = 0
+            plabel[idx] = 1
+            partialY_new.append(plabel)
+        else:
+            partialY_new.append(plabel)
+    partialY_new = np.array(partialY_new)
+    return partialY_new
+
 def load_cifar10(args):
     #######################################################
     print ('obtain train_loader')
@@ -85,14 +112,14 @@ def load_cifar10(args):
     '''
     
     print('Average candidate num: ', np.mean(np.sum(train_givenY, axis=1)))
-    bingo_rate = np.sum(train_givenY[np.arange(num_sample), dlabels_train] == 1.0) / num_sample
-    print('Average bingo rate: ', bingo_rate)
+    # bingo_rate = np.sum(train_givenY[np.arange(num_sample), dlabels_train] == 1.0) / num_sample
+    # print('Average bingo rate: ', bingo_rate)
 
     # Step 2: Add noise labels (if applicable)
     if args.noisy_type == 'flip':
-        train_givenY = generate_noise_labels(dlabels_train, train_givenY, args.noise_rate)
-        bingo_rate = np.sum(train_givenY[np.arange(num_sample), dlabels_train] == 1.0) / num_sample
-        print('Average noise rate: ', 1 - bingo_rate)
+        train_givenY = generate_noise_labels_ood(dlabels_train, train_givenY, args.noise_rate)
+        # bingo_rate = np.sum(train_givenY[np.arange(num_sample), dlabels_train] == 1.0) / num_sample
+        # print('Average noise rate: ', 1 - bingo_rate)
     elif args.noisy_type == 'pico':
         train_givenY = generate_uniform_cv_candidate_labels_PiCO(dlabels_train, args.partial_rate, args.noise_rate)
         print('Average candidate num: ', np.mean(np.sum(train_givenY, axis=1)))
