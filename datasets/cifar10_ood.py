@@ -26,6 +26,9 @@ def generate_uniform_cv_candidate_labels_ood(labels, partial_rate=0.1):
     for i, label in enumerate(labels):
         if label <= 7:
             partialY[i, label] = 1.0
+        else:
+            random_int = random.randint(0, 7)
+            partialY[i, random_int] = 1.0
 
     transition_matrix = np.eye(K)
     transition_matrix[np.where(~np.eye(transition_matrix.shape[0],dtype=bool))]=partial_rate
@@ -49,7 +52,8 @@ def generate_uniform_cv_candidate_labels_ood(labels, partial_rate=0.1):
         for jj in range(K): # for each class 
             if jj == labels[j]: # except true class
                 continue
-            if random_n[j, jj] < transition_matrix[labels[j], jj]:
+            # if random_n[j, jj] < transition_matrix[labels[j], jj]:
+            if random_n[j, jj] < partial_rate:
                 partialY[j, jj] = 1.0
 
     return partialY
