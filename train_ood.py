@@ -54,6 +54,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         images_s1 = images_s1.cuda()
         
         plabels = plabels.cuda()
+        print(plabels.shape)
         # plabels: partial label
         # print("plabels")
         # print(plabels)
