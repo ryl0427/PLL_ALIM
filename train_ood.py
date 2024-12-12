@@ -374,6 +374,7 @@ if __name__ == '__main__':
 
     print (f'====== Step2: Gaining model and optimizer =======')
     if args.encoder == 'resnet':
+        print(args.num_class)
         model = PiCO(args, CIFAR_ResNet, pretrained=False) # pretrain is not suitable for cifar dataset
         if args.dataset == 'cub200':
             model = PiCO(args, CIFAR_ResNet, pretrained=True)
