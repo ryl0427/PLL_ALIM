@@ -176,7 +176,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         np.save(str(epoch)+'epoch.npy', di)
     return train_save
 
-
+'''
 def test(args, epoch, test_loader, model):
     test_preds = []
     test_labels = []
@@ -201,6 +201,48 @@ def test(args, epoch, test_loader, model):
             test_hidden2.append(hidden2.cpu().numpy())
         test_acc = bingo_num / total_num
         print(f'Epoch={epoch}/{args.epochs} Test accuracy={test_acc:.4f}, bingo_num={bingo_num},  total_num={total_num}')
+        test_hidden1 = np.concatenate(test_hidden1)
+        test_hidden2 = np.concatenate(test_hidden2)
+        test_probs = np.concatenate(test_probs)
+        test_preds = np.concatenate(test_preds)
+        test_labels = np.concatenate(test_labels)
+        test_save = {
+            'test_hidden1': test_hidden1,
+            'test_hidden2': test_hidden2,
+            'test_probs': test_probs,
+            'test_preds': test_preds,
+            'test_labels': test_labels
+        }
+    return test_acc, test_save
+'''
+
+def test_ood(args, epoch, test_loader, model):
+    test_preds = []
+    test_labels = []
+    test_probs = []
+    test_hidden1 = []
+    test_hidden2 = []
+    with torch.no_grad():     
+        model.eval()
+        bingo_num = 0
+        total_num = 0
+        total_num_less_than_8 = 0  # 用于统计标签小于8的样本总数
+        for batch_idx, (images, labels) in enumerate(test_loader):
+            images, labels = images.cuda(), labels.cuda()
+            logit, _, hidden1, hidden2 = model(images, eval_only=True)
+            _, predicts = torch.max(logit, 1)
+            total_num += images.size(0)
+            # 只统计labels < 8的样本
+            mask = labels < 8
+            total_num_less_than_8 += torch.sum(mask).item()
+            bingo_num += torch.sum(torch.eq(predicts[mask], labels[mask])).item()
+            test_preds.append(predicts.cpu().numpy())
+            test_labels.append(labels.cpu().numpy())
+            test_probs.append(logit.cpu().numpy())
+            test_hidden1.append(hidden1.cpu().numpy())
+            test_hidden2.append(hidden2.cpu().numpy())
+        test_acc = bingo_num / total_num_less_than_8 if total_num_less_than_8 > 0 else 0
+        print(f'Epoch={epoch}/{args.epochs} Test accuracy={test_acc:.4f}, bingo_num={bingo_num}, total_num_less_than_8={total_num_less_than_8}')
         test_hidden1 = np.concatenate(test_hidden1)
         test_hidden2 = np.concatenate(test_hidden2)
         test_probs = np.concatenate(test_probs)
@@ -353,7 +395,7 @@ if __name__ == '__main__':
             adjust_learning_rate_V2(args, optimizer, epoch)
         train_save = train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer)
         loss_fn.set_conf_ema_m(epoch, args)
-        test_acc, test_save = test(args, epoch, test_loader, model)
+        test_acc, test_save = test_ood(args, epoch, test_loader, model)
         test_accs.append(test_acc)
 
     print (f'====== Step4: Saving =======')
