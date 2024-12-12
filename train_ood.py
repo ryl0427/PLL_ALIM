@@ -100,6 +100,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         # 对比学习 loss
         loss_cont = loss_cont_fn(features=cont_features, mask=cont_mask, batch_size=batch_size)
         loss_cls = loss_fn(args, classfy_out, index) # need preds
+        print("YES1")
         
         if args.loss_weight_mixup !=0:
             lam = np.random.beta(args.alpha, args.alpha)
