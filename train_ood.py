@@ -53,7 +53,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         images_w2 = images_w2.cuda()
         images_s1 = images_s1.cuda()
         
-        print(image_w1.shape)
+        print(images_w1.shape)
         
         plabels = plabels.cuda()
         print(plabels.shape)
