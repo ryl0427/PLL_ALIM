@@ -71,7 +71,8 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         
         # train and save results
         classfy_out, cluster_out, cont_features, cont_labels = model(images_w1, images_s1, plabels, args)
-        print(classfy_out)
+        print(classfy_out.shape)
+        print(cluster_out.shape)
        
         total_num += plabels.size(0)
         
