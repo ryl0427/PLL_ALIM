@@ -120,6 +120,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
             pseudo_label_mix = lam * pseudo_label_1 + (1 - lam) * pseudo_label_2
             print(X_w_mix.shape)
             print(pseudo_label_mix.shape)
+            X_w_mix = X_w_mix.cuda().float()
             logits_mix, _ ,_= model.encoder_q(X_w_mix)
             pred_mix = torch.softmax(logits_mix, dim=1)
             loss_mixup = - ((torch.log(pred_mix) * pseudo_label_mix).sum(dim=1)).mean()
