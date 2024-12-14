@@ -134,7 +134,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         '''
         # else:
         loss = loss_cls + args.loss_weight * loss_cont
-
+        print("YES2")
         # compute gradient and do SGD step
         optimizer.zero_grad()
         loss.backward()
