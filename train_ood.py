@@ -21,6 +21,7 @@ from datasets.cifar10_ood import load_cifar10
 from datasets.cifar100 import load_cifar100
 from datasets.cifar100H import load_cifar100H
 from datasets.cub200 import load_cub200
+CUDA_LAUNCH_BLOCKING=1
 def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
 
     total_num = 0
@@ -77,11 +78,11 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         print(cluster_out.shape)
        
         total_num += plabels.size(0)
-        
+        '''
         cls_bingo_num  += torch.eq(torch.max(classfy_out, 1)[1], dlabels).sum().cpu()
         cons_bingo_num += torch.eq(torch.max(cluster_out, 1)[1], dlabels).sum().cpu()
         cont_labels_bingo_num += torch.eq(torch.max(cluster_out * (plabels +args.piror*(1-plabels)),1)[1], dlabels).sum().cpu()
-        '''
+        
         for jj in range(len(piror_set)):
             cluster_piror_set_bingo_num[jj] = cluster_piror_set_bingo_num[jj] + torch.eq(torch.max(cluster_out * (plabels +piror_set[jj]*(1-plabels)),1)[1], dlabels).sum().cpu()
             classfy_piror_set_bingo_num[jj] = classfy_piror_set_bingo_num[jj] + torch.eq(torch.max(classfy_out * (plabels +piror_set[jj]*(1-plabels)),1)[1], dlabels).sum().cpu()
@@ -145,12 +146,13 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        print("YES3")
+        
         end_time =time.time()
+        '''
         per_sample_time = (end_time - start_time) / plabels.size(0)
         margin += ((torch.max(cluster_out*plabels, 1)[0])/(1e-9+torch.max(cluster_out*(1-plabels), 1)[0])).tolist()
         clean_sample+= (plabels*(torch.nn.functional.one_hot(dlabels,args.num_class))).sum(dim=1).cpu().tolist()
-        print("YES4")
+        '''
     '''
     epoch_cls_acc = cls_bingo_num/total_num
     epoch_cont_acc = cons_bingo_num/total_num
