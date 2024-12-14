@@ -57,25 +57,25 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         # print(images_w1.shape)
         
         plabels = plabels.cuda()
-        print(plabels.shape)
+        # print(plabels.shape)
         # [128, 8]
         # plabels: partial label
-        print("plabels")
-        print(plabels)
+        # print("plabels")
+        # print(plabels)
         dlabels = dlabels.long().detach().cuda() # only for evalaution
         # dlabels: true label
-        print("dlabels")
-        print(dlabels)
+        # print("dlabels")
+        # print(dlabels)
         
         index = index.cuda()
         index_2 = index_2.cuda()
-        print(index)
-        print(index_2)
+        # print(index)
+        # print(index_2)
         
         # train and save results
         classfy_out, cluster_out, cont_features, cont_labels = model(images_w1, images_s1, plabels, args)
-        print(classfy_out.shape)
-        print(cluster_out.shape)
+        # print(classfy_out.shape)
+        # print(cluster_out.shape)
        
         total_num += plabels.size(0)
         '''
@@ -112,8 +112,8 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         # 对比学习 loss
         # loss_cont = loss_cont_fn(features=cont_features, mask=cont_mask, batch_size=batch_size)
         loss_cls = loss_fn(args, classfy_out, index) # need preds
-        print("YES1")
-        print(loss_cls)
+        # print("YES1")
+        # print(loss_cls)
         
         '''
         if args.loss_weight_mixup !=0:
@@ -141,7 +141,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         # else:
         # loss = loss_cls + args.loss_weight * loss_cont
         loss = loss_cls
-        print("YES2")
+        # print("YES2")
         # compute gradient and do SGD step
         optimizer.zero_grad()
         loss.backward()
