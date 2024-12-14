@@ -200,7 +200,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         di['lambda']=args.piror
         np.save(str(epoch)+'epoch.npy', di)
     '''
-    return train_save
+    # return train_save
 
 '''
 def test(args, epoch, test_loader, model):
