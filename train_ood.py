@@ -53,23 +53,23 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         images_w2 = images_w2.cuda()
         images_s1 = images_s1.cuda()
         
-        print(images_w1.shape)
+        # print(images_w1.shape)
         
         plabels = plabels.cuda()
         print(plabels.shape)
         # [128, 8]
         # plabels: partial label
-        # print("plabels")
-        # print(plabels)
+        print("plabels")
+        print(plabels)
         dlabels = dlabels.long().detach().cuda() # only for evalaution
         # dlabels: true label
-        # print("dlabels")
-        # print(dlabels)
+        print("dlabels")
+        print(dlabels)
         
-        # index = index.cuda()
-        # index_2 = index_2.cuda()
-        # print(index)
-        # print(index_2)
+        index = index.cuda()
+        index_2 = index_2.cuda()
+        print(index)
+        print(index_2)
         
         # train and save results
         classfy_out, cluster_out, cont_features, cont_labels = model(images_w1, images_s1, plabels, args)
