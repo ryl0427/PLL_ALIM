@@ -93,6 +93,8 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         '''
         # loss function
         batch_size = classfy_out.shape[0]
+        
+        '''
         cont_labels = cont_labels.contiguous().view(-1, 1)
         # print("cont_labels")
         # print(cont_labels)
@@ -102,9 +104,10 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
                 if args.proto_type=='cluster':  pred = cluster_out 
                 if args.proto_type=='classify': pred = classfy_out
             loss_fn.confidence_update(args, pred, index, plabels)
+        '''
         
         # 对比学习 loss
-        loss_cont = loss_cont_fn(features=cont_features, mask=cont_mask, batch_size=batch_size)
+        # loss_cont = loss_cont_fn(features=cont_features, mask=cont_mask, batch_size=batch_size)
         loss_cls = loss_fn(args, classfy_out, index) # need preds
         print("YES1")
         print(loss_cls)
@@ -133,7 +136,8 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
             loss = loss_cls + args.loss_weight * loss_cont + args.loss_weight_mixup*loss_mixup
         '''
         # else:
-        loss = loss_cls + args.loss_weight * loss_cont
+        # loss = loss_cls + args.loss_weight * loss_cont
+        loss = loss_cls
         print("YES2")
         # compute gradient and do SGD step
         optimizer.zero_grad()
@@ -145,7 +149,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         margin += ((torch.max(cluster_out*plabels, 1)[0])/(1e-9+torch.max(cluster_out*(1-plabels), 1)[0])).tolist()
         clean_sample+= (plabels*(torch.nn.functional.one_hot(dlabels,args.num_class))).sum(dim=1).cpu().tolist()
         print("YES4")
-
+    '''
     epoch_cls_acc = cls_bingo_num/total_num
     epoch_cont_acc = cons_bingo_num/total_num
     epoch_cont_label_acc = cont_labels_bingo_num/total_num
@@ -173,6 +177,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         'total_classfy_out':    total_classfy_out,
         'total_cluster_out':    total_cluster_out,
     }
+    
 
     if epoch>=args.piror_start:
         if args.noise_rate>0:
@@ -190,6 +195,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         di['clean'] = clean_sample
         di['lambda']=args.piror
         np.save(str(epoch)+'epoch.npy', di)
+    '''
     return train_save
 
 '''
