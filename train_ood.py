@@ -66,10 +66,10 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         # print("dlabels")
         # print(dlabels)
         
-        index = index.cuda()
-        index_2 = index_2.cuda()
-        print(index)
-        print(index_2)
+        # index = index.cuda()
+        # index_2 = index_2.cuda()
+        # print(index)
+        # print(index_2)
         
         # train and save results
         classfy_out, cluster_out, cont_features, cont_labels = model(images_w1, images_s1, plabels, args)
