@@ -154,6 +154,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         per_sample_time = (end_time - start_time) / plabels.size(0)
         # margin += ((torch.max(cluster_out*plabels, 1)[0])/(1e-9+torch.max(cluster_out*(1-plabels), 1)[0])).tolist()
         # clean_sample+= (plabels*(torch.nn.functional.one_hot(dlabels,args.num_class))).sum(dim=1).cpu().tolist()
+        print("OK")
         
     '''
     epoch_cls_acc = cls_bingo_num/total_num
