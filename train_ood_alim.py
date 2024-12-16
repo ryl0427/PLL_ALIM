@@ -87,12 +87,15 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
             cluster_piror_set_bingo_num[jj] = cluster_piror_set_bingo_num[jj] + torch.eq(torch.max(cluster_out * (plabels +piror_set[jj]*(1-plabels)),1)[1], dlabels).sum().cpu()
             classfy_piror_set_bingo_num[jj] = classfy_piror_set_bingo_num[jj] + torch.eq(torch.max(classfy_out * (plabels +piror_set[jj]*(1-plabels)),1)[1], dlabels).sum().cpu()
         
+        print(cluster_piror_set_bingo_num)
+        print(classfy_piror_set_bingo_num)
+        
         total_indexes.append(index.detach().cpu().numpy())
         total_plabels.append(plabels.detach().cpu().numpy())
         total_dlabels.append(dlabels.detach().cpu().numpy())
         total_classfy_out.append(classfy_out.detach().cpu().numpy())
         total_cluster_out.append(cluster_out.detach().cpu().numpy())
-        print("YES")
+        # print("YES")
         
         # loss function
         batch_size = classfy_out.shape[0]
