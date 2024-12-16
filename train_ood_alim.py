@@ -153,10 +153,11 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         
         per_sample_time = (end_time - start_time) / plabels.size(0)
         margin += ((torch.max(cluster_out*plabels, 1)[0])/(1e-9+torch.max(cluster_out*(1-plabels), 1)[0])).tolist()
-        clean_sample+= (plabels*(torch.nn.functional.one_hot(dlabels,args.num_class))).sum(dim=1).cpu().tolist()
-        print("OK")
+        # clean_sample+= (plabels*(torch.nn.functional.one_hot(dlabels,args.num_class))).sum(dim=1).cpu().tolist()
+        # To Do
+        # print("OK")
         
-    '''
+    
     epoch_cls_acc = cls_bingo_num/total_num
     epoch_cont_acc = cons_bingo_num/total_num
     epoch_cont_label_acc = cont_labels_bingo_num/total_num
@@ -199,10 +200,9 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
     if epoch%100==1:   #for plot Distribution of the value in Eq. 6 for clean and noise subsets with increasing training iterations. We conduct experiments on CIFAR-10 (q = 0.3, η = 0.3) with e0 = 80.
         di = {}
         di['margin']=margin
-        di['clean'] = clean_sample
+        # di['clean'] = clean_sample
         di['lambda']=args.piror
         np.save(str(epoch)+'epoch.npy', di)
-    '''
     # return train_save
 
 '''
