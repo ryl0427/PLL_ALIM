@@ -108,7 +108,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
             loss_fn.confidence_update(args, pred, index, plabels)
         
         # 对比学习 loss
-        # loss_cont = loss_cont_fn(features=cont_features, mask=cont_mask, batch_size=batch_size)
+        loss_cont = loss_cont_fn(features=cont_features, mask=cont_mask, batch_size=batch_size)
         loss_cls = loss_fn(args, classfy_out, index) # need preds
         # print("YES1")
         # print(loss_cls)
