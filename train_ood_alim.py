@@ -113,7 +113,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
         # print("YES1")
         # print(loss_cls)
         
-        '''
+        
         if args.loss_weight_mixup !=0:
             lam = np.random.beta(args.alpha, args.alpha)
             lam = max(lam, 1-lam)
@@ -123,8 +123,9 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
             # print(pseudo_label_2)
             X_w_mix = lam * images_w1  + (1 - lam) * images_w2      
             pseudo_label_mix = lam * pseudo_label_1 + (1 - lam) * pseudo_label_2
-            print(X_w_mix.shape)
-            print(pseudo_label_mix.shape)
+            
+            # print(X_w_mix.shape)
+            # print(pseudo_label_mix.shape)
             
             X_w_mix = X_w_mix.cuda().float()
             logits_mix, _ ,_= model.encoder_q(X_w_mix)
@@ -134,10 +135,10 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
                 rceloss = - ((torch.log(pseudo_label_mix + 1e-7 ) * pred_mix).sum(dim=1)).mean()
                 loss_mixup = args.sce_alpha*loss_mixup + args.sce_beta*rceloss
         
-            loss = loss_cls + args.loss_weight * loss_cont + args.loss_weight_mixup*loss_mixup
-        '''
+            # loss = loss_cls + args.loss_weight * loss_cont + args.loss_weight_mixup*loss_mixup
+        
         # else:
-        loss = loss_cls + args.loss_weight * loss_cont
+        loss = loss_cls + args.loss_weight * loss_cont + args.loss_weight_mixup*loss_mixup
         # loss = loss_cls
         # print("YES2")
         # compute gradient and do SGD step
