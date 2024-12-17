@@ -136,7 +136,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
             loss_mixup = - ((torch.log(pred_mix) * pseudo_label_mix).sum(dim=1)).mean()
             if args.loss_type == 'SCE':
                 rceloss = - ((torch.log(pseudo_label_mix + 1e-7 ) * pred_mix).sum(dim=1)).mean()
-                loss_mixup = args.sce_alpha*loss_mixup + args.sce_beta*rceloss
+                loss_mixup = args.sce_alpha*loss_mixup + args.sce_beta * rceloss
         
             # loss = loss_cls + args.loss_weight * loss_cont + args.loss_weight_mixup*loss_mixup
         
