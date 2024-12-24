@@ -131,8 +131,8 @@ def train(args, epoch, train_loader, model, loss_fn, loss_cont_fn, optimizer):
     epoch_cont_acc = cons_bingo_num / total_num
     epoch_cont_label_acc = cont_labels_bingo_num / total_num
     for jj in range(len(piror_set)):
-        cluster_piror_set_bingo_num[jj] /= total_num
-        classfy_piror_set_bingo_num[jj] /= total_num
+        cluster_piror_set_bingo_num[jj] /= float(total_num)
+        classfy_piror_set_bingo_num[jj] /= float(total_num)
 
     # Compute and print average AUROC for the epoch
     if auroc_list:
