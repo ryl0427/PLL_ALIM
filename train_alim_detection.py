@@ -130,6 +130,9 @@ def train(args, epoch, train_loader, model, loss_fn, loss_cont_fn, optimizer):
     epoch_cls_acc = cls_bingo_num / total_num
     epoch_cont_acc = cons_bingo_num / total_num
     epoch_cont_label_acc = cont_labels_bingo_num / total_num
+    
+    print(total_num)
+    print(cluster_piror_set_bingo_num[jj])
     for jj in range(len(piror_set)):
         cluster_piror_set_bingo_num[jj] /= float(total_num)
         classfy_piror_set_bingo_num[jj] /= float(total_num)
