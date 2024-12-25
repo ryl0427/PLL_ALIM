@@ -41,6 +41,7 @@ def train(args, epoch, train_loader, model, loss_fn, loss_cont_fn, optimizer):
     classfy_piror_set_bingo_num = [0] * len(piror_set)
 
     auroc_list = []  # 用于存储每个 batch 的 AUROC
+    auroc_list1 = []
 
     model.train()
     margin = []
@@ -63,12 +64,16 @@ def train(args, epoch, train_loader, model, loss_fn, loss_cont_fn, optimizer):
         dlabels_numpy = np.where(dlabels_numpy > 7, 1, 0)
 
         classfy_out_numpy = classfy_out.detach().cpu().numpy()
-        max_values = np.max(classfy_out_numpy, axis=1)
+        max_values = -np.max(classfy_out_numpy, axis=1)
         transposed_values = max_values
+        
+        energy_scores = -np.log(np.sum(np.exp(classfy_out_numpy), axis=1))
 
         try:
             auroc = roc_auc_score(dlabels_numpy, transposed_values)
             auroc_list.append(auroc)
+            auroc1 = roc_auc_score(dlabels_numpy, energy_scores)
+            auroc_list1.append(auroc1)
         except ValueError:
             print("AUROC cannot be calculated for this batch due to insufficient class variety.")
             continue
@@ -131,8 +136,8 @@ def train(args, epoch, train_loader, model, loss_fn, loss_cont_fn, optimizer):
     epoch_cont_acc = cons_bingo_num / total_num
     epoch_cont_label_acc = cont_labels_bingo_num / total_num
     
-    print(total_num)
-    print(cluster_piror_set_bingo_num[jj])
+    # print(total_num)
+    # print(cluster_piror_set_bingo_num[jj])
     for jj in range(len(piror_set)):
         cluster_piror_set_bingo_num[jj]=cluster_piror_set_bingo_num[jj]/total_num
         classfy_piror_set_bingo_num[jj]=classfy_piror_set_bingo_num[jj]/total_num
@@ -140,7 +145,9 @@ def train(args, epoch, train_loader, model, loss_fn, loss_cont_fn, optimizer):
     # Compute and print average AUROC for the epoch
     if auroc_list:
         epoch_auroc = np.mean(auroc_list)
+        epoch_auroc1 = np.mean(auroc_list1)
         print(f"Epoch {epoch} Average AUROC: {epoch_auroc:.4f}")
+        print(f"Epoch {epoch} Average AUROC_energy: {epoch_auroc1:.4f}")
     else:
         print(f"Epoch {epoch}: No AUROC calculated.")
 
