@@ -23,6 +23,7 @@ from datasets.cifar100H import load_cifar100H
 from datasets.cub200 import load_cub200
 
 from sklearn.metrics import roc_auc_score
+# from scipy.special import softmax
 CUDA_LAUNCH_BLOCKING=1
 
 def train(args, epoch, train_loader, model, loss_fn, loss_cont_fn, optimizer):
@@ -64,7 +65,10 @@ def train(args, epoch, train_loader, model, loss_fn, loss_cont_fn, optimizer):
         dlabels_numpy = np.where(dlabels_numpy > 7, 1, 0)
 
         classfy_out_numpy = classfy_out.detach().cpu().numpy()
-        max_values = -np.max(classfy_out_numpy, axis=1)
+        exp_matrix = np.exp(classfy_out_numpy - np.max(classfy_out_numpy, axis=1, keepdims=True))
+        exp_matrix = exp_matrix / np.sum(exp_matrix, axis=1, keepdims=True)
+        
+        max_values = -np.max(exp_matrix, axis=1)
         transposed_values = max_values
         
         energy_scores = -np.log(np.sum(np.exp(classfy_out_numpy), axis=1))
