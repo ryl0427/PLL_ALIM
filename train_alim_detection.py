@@ -23,6 +23,7 @@ from datasets.cifar100H import load_cifar100H
 from datasets.cub200 import load_cub200
 
 from sklearn.metrics import roc_auc_score
+from sklearn.mixture import GaussianMixture
 # from scipy.special import softmax
 CUDA_LAUNCH_BLOCKING=1
 
@@ -43,6 +44,7 @@ def train(args, epoch, train_loader, model, loss_fn, loss_cont_fn, optimizer):
 
     auroc_list = []  # 用于存储每个 batch 的 AUROC
     auroc_list1 = []
+    ood_acc = []
 
     model.train()
     margin = []
@@ -72,6 +74,17 @@ def train(args, epoch, train_loader, model, loss_fn, loss_cont_fn, optimizer):
         transposed_values = max_values
         
         energy_scores = -np.log(np.sum(np.exp(classfy_out_numpy), axis=1))
+        
+        energy_scores = energy_scores.reshape(-1, 1)
+        gmm = GaussianMixture(n_components=2, random_state=42)        
+        gmm.fit(energy_scores)       
+        gmm_labels = gmm.predict(energy_scores)
+        mean_values = gmm.means_.flatten()
+        if mean_values[0] > mean_values[1]:
+            gmm_labels = 1 - gmm_labels  # 反转标签，使得较大能量值对应1，较小对应0
+        gmm_accuracy = np.sum(dlabels_numpy == gmm_labels) / len(dlabels_numpy)
+        ood_acc.append(gmm_accuracy)
+
 
         try:
             auroc = roc_auc_score(dlabels_numpy, transposed_values)
@@ -150,8 +163,10 @@ def train(args, epoch, train_loader, model, loss_fn, loss_cont_fn, optimizer):
     if auroc_list:
         epoch_auroc = np.mean(auroc_list)
         epoch_auroc1 = np.mean(auroc_list1)
+        ood_acc_train = np.mean(ood_acc)
         print(f"Epoch {epoch} Average AUROC: {epoch_auroc:.4f}")
         print(f"Epoch {epoch} Average AUROC_energy: {epoch_auroc1:.4f}")
+        print(f"Epoch {epoch} Average ood Acc: {ood_acc_train:.4f}")
     else:
         print(f"Epoch {epoch}: No AUROC calculated.")
 
