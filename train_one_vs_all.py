@@ -12,7 +12,7 @@ import torch.optim
 import torch.utils.data
 
 from pll_model import PiCO
-from models.cifar_resnet import CIFAR_ResNet
+from models.cifar_resnet_detection import CIFAR_ResNet
 from models.cifar_preactresnet import CIFAR_PreActResNet
 from utils.utils_algo import *
 from utils.utils_loss import partial_loss, SupConLoss
