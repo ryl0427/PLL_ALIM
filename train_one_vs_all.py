@@ -142,7 +142,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
             # print(pseudo_label_mix.shape)
             
             X_w_mix = X_w_mix.cuda().float()
-            logits_mix, _ ,_,_= model.encoder_q(X_w_mix)
+            logits_mix, _ ,_= model.encoder_q(X_w_mix)
             pred_mix = torch.softmax(logits_mix, dim=1)
             loss_mixup = - ((torch.log(pred_mix) * pseudo_label_mix).sum(dim=1)).mean()
             if args.loss_type == 'SCE':
