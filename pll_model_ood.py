@@ -5,7 +5,6 @@ import numpy as np
 from random import sample
 import torch.nn.functional as F
 
-
 class PiCO(nn.Module):
 
     def __init__(self, args, base_encoder, pretrained=False):
@@ -22,14 +21,17 @@ class PiCO(nn.Module):
         self.register_buffer("queue", torch.randn(args.moco_queue, args.low_dim))
         self.register_buffer("queue_pseudo", torch.randn(args.moco_queue))
         self.queue = F.normalize(self.queue, dim=1)
-        self.register_buffer("queue_ptr", torch.zeros(1, dtype=torch.long))        
-        self.register_buffer("prototypes", torch.zeros(args.num_class,args.low_dim))
-        self.vMF  = args.vMF
-        
+        self.register_buffer("queue_ptr", torch.zeros(1, dtype=torch.long))
+        self.register_buffer("prototypes", torch.zeros(args.num_class, args.low_dim))
+        self.vMF = args.vMF
+
+        # One-vs-all classifier layer
+        self.fc_one_vs_all = nn.Linear(args.low_dim, args.num_class)
+
     @torch.no_grad()
     def _momentum_update_key_encoder(self, args):
         """
-        update momentum encoder
+        Update momentum encoder
         """
         for param_q, param_k in zip(self.encoder_q.parameters(), self.encoder_k.parameters()):
             param_k.data = param_k.data * args.moco_m + param_q.data * (1. - args.moco_m)
@@ -59,43 +61,42 @@ class PiCO(nn.Module):
     def _batch_unshuffle_ddp(self, x, idx_unshuffle):
         return x[idx_unshuffle]
 
-
     def forward(self, img_q, img_k=None, plabel=None, args=None, eval_only=False):
-        
-        ## logit: classification result (without plabel)
-        classfy_out, q, hiddens= self.encoder_q(img_q)
+        # Classification output
+        classfy_out, q, hiddens = self.encoder_q(img_q)
         classfy_out = torch.softmax(classfy_out, dim=1)
-        
-        ## cluster_out: cluster result (without plabel)
+
+        # Clustering output
         prototypes = self.prototypes.clone().detach()
         logits_prot = torch.mm(q, prototypes.t())
-        cluster_out = torch.softmax(logits_prot/self.vMF, dim=1)
+        cluster_out = torch.softmax(logits_prot / self.vMF, dim=1)
+
+        # One-vs-all classification output
+        one_vs_all = self.fc_one_vs_all(q)  # [batch_size, num_class]
 
         if eval_only:
-            return classfy_out, cluster_out, q, hiddens
+            return classfy_out, cluster_out, q, hiddens, one_vs_all
 
+        # Predicted scores for pseudo-labeling
+        predicted_scores = classfy_out * (plabel + args.piror * (1 - plabel))
+        _, pseudo_labels = torch.max(predicted_scores, dim=1)
 
-        predicetd_scores =  classfy_out * (plabel +args.piror*(1-plabel)) 
-
-        _, pseudo_labels = torch.max(predicetd_scores, dim=1)
-
-        ## pseudo_labels -> cluster center
+        # Update prototypes
         for feat, label in zip(q, pseudo_labels):
-            prototypes[label] = prototypes[label]*args.proto_m + (1-args.proto_m)*feat    
-        self.prototypes = F.normalize(prototypes, dim=1) # normalize prototypes
+            prototypes[label] = prototypes[label] * args.proto_m + (1 - args.proto_m) * feat
+        self.prototypes = F.normalize(prototypes, dim=1)  # normalize prototypes
 
-        ## pseudo_labels -> contrastive learning
+        # Contrastive learning
         with torch.no_grad():
-            self._momentum_update_key_encoder(args) # update the momentum encoder
+            self._momentum_update_key_encoder(args)  # update the momentum encoder
             img_k, idx_unshuffle = self._batch_shuffle_ddp(img_k)
-            _, k, _= self.encoder_k(img_k)
+            _, k, _ = self.encoder_k(img_k)
             k = self._batch_unshuffle_ddp(k, idx_unshuffle)
         cont_features = torch.cat((q, k, self.queue.clone().detach()), dim=0)
         cont_labels = torch.cat((pseudo_labels, pseudo_labels, self.queue_pseudo.clone().detach()), dim=0)
         self._dequeue_and_enqueue(k, pseudo_labels, args)
 
-        # classfy_out: classification result (without plabel) => preds
-        # cluster_out: clustering result     (without plabel) => preds
-        # (cont_features, cont_labels): SupCon
-        return classfy_out, cluster_out, cont_features, cont_labels
+        # Outputs
+        return classfy_out, cluster_out, cont_features, cont_labels, one_vs_all
+
 
