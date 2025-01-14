@@ -269,7 +269,7 @@ def test_ood(args, epoch, test_loader, model):
         total_num_less_than_8 = 0  # 用于统计标签小于8的样本总数
         for batch_idx, (images, labels) in enumerate(test_loader):
             images, labels = images.cuda(), labels.cuda()
-            logit, _, hidden1, hidden2 = model(images, eval_only=True)
+            logit, _, hidden1, hidden2, _ = model(images, eval_only=True)
             _, predicts = torch.max(logit, 1)
             total_num += images.size(0)
             # 只统计labels < 8的样本
