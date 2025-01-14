@@ -88,7 +88,7 @@ class PiCO(nn.Module):
         with torch.no_grad():
             self._momentum_update_key_encoder(args) # update the momentum encoder
             img_k, idx_unshuffle = self._batch_shuffle_ddp(img_k)
-            _, k, _ = self.encoder_k(img_k)
+            _, k, _, _ = self.encoder_k(img_k)
             k = self._batch_unshuffle_ddp(k, idx_unshuffle)
         cont_features = torch.cat((q, k, self.queue.clone().detach()), dim=0)
         cont_labels = torch.cat((pseudo_labels, pseudo_labels, self.queue_pseudo.clone().detach()), dim=0)
