@@ -63,7 +63,7 @@ class PiCO(nn.Module):
     def forward(self, img_q, img_k=None, plabel=None, args=None, eval_only=False):
         
         ## logit: classification result (without plabel)
-        classfy_out, q, hiddens = self.encoder_q(img_q)
+        classfy_out, q, hiddens,_ = self.encoder_q(img_q)
         classfy_out = torch.softmax(classfy_out, dim=1)
         
         ## cluster_out: cluster result (without plabel)
