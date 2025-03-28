@@ -152,7 +152,7 @@ def train(args, epoch, train_loader,model, loss_fn, loss_cont_fn, optimizer):
             # loss = loss_cls + args.loss_weight * loss_cont + args.loss_weight_mixup*loss_mixup
         
         # else:
-        loss = loss_cls + args.loss_weight * loss_cont + args.loss_weight_mixup*loss_mixup
+        loss = loss_cls + args.loss_weight * loss_cont + args.loss_weight_mixup*loss_mixup + 0.1 * loss_one_vs_all
         # loss = loss_cls
         # print("YES2")
         # compute gradient and do SGD step
